@@ -9,15 +9,27 @@
 
 use eZ\Bundle\EzPublishCoreBundle\EzPublishCoreBundle;
 use eZ\Bundle\EzPublishLegacyBundle\EzPublishLegacyBundle;
+use eZ\Bundle\EzPublishCoreBundle\Kernel as BaseEzPublishKernel;
 use EzSystems\DemoBundle\EzSystemsDemoBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
-use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
 
-class EzPublishKernel extends Kernel
+class EzPublishKernel extends BaseEzPublishKernel
 {
+    /**
+     * Constructor.
+     *
+     * @param string $environment The environment
+     * @param bool $debug Whether to enable debugging or not
+     */
+    public function __construct( $environment, $debug )
+    {
+        parent::__construct( $environment, $debug );
+        $this->loadClassCache();
+    }
+
     /**
      * Returns an array of bundles to registers.
      *

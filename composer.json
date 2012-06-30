@@ -17,7 +17,7 @@
         "zetacomponents/persistent-object": "dev-master",
         "zetacomponents/php-generator": "dev-master",
         "zetacomponents/signal-slot": "dev-master",
-        "zetacomponents/webdav": "dev-master"
+        "zetacomponents/webdav": "1.1.0-rc1"
     },
     "autoload": {
         "psr-0": {
