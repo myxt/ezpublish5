@@ -33,7 +33,7 @@ Any route that is not declared in eZ Publish 5 in an included `routing.yml` will
 This will allow your old modules still to work as before.
 
 ### Developing a controller
-When developing a controller (formerly module), make sure to extend `eZ\Publish\MVC\Controller` instead of the default Symfony one.
+When developing a controller (formerly module), make sure to extend `eZ\Bundle\EzPublishCoreBundle\Controller` instead of the default Symfony one.
 This will allow you to take advantage of additional eZ-specific features (like easier Public API access).
 
 Inside an eZ Controller, you can access to the public API by getting the Repository through the `$this->getRepository()` method.
@@ -42,7 +42,7 @@ Inside an eZ Controller, you can access to the public API by getting the Reposit
 <?php
 namespace My\TestBundle\Controller;
 
-use eZ\Publish\MVC\Controller as EzController;
+use eZ\Bundle\EzPublishCoreBundle\Controller as EzController;
 
 class MyController extends EzController
 {
@@ -101,7 +101,7 @@ It is however still possible to run some PHP code inside that sandbox through th
 $settingName = 'MySetting';
 $test = array( 'oneValue', 'anotherValue' );
 $myLegacySetting = $this->getLegacyKernel()->runCallback(
-    function () use ( $foo, $test )
+    function () use ( $settingName, $test )
     {
         // Here you can reuse $settingName and $test variables inside the legacy context
         $ini = eZINI::instance( 'someconfig.ini' );
@@ -109,7 +109,7 @@ $myLegacySetting = $this->getLegacyKernel()->runCallback(
     }
 );
 ```
-
+> `runCallback()` can also take a 2nd argument. Setting to `true` avoids to re-initialize the legacy kernel environment after your call.
 
 ## Limitations / Known issues
 eZ Publish 5 development is still at a very early stage (*pre-alpha*) and as such there are still a lot of limitations and (un)known issues like:

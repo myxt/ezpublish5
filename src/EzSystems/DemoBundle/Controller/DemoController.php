@@ -9,7 +9,10 @@
 
 namespace EzSystems\DemoBundle\Controller;
 
-use eZ\Publish\MVC\Controller;
+use eZ\Bundle\EzPublishCoreBundle\Controller;
+use eZ\Publish\API\Repository\Values\Content\Query;
+use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
+use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use \DateTime;
@@ -58,7 +61,7 @@ class DemoController extends Controller
             // return the 304 Response immediately
             return $response;
         }
-        $response->setContent( "Hello World!" );
+        $response->setContent( "Hello Universe!" );
 
         return $response;
     }
@@ -73,7 +76,7 @@ class DemoController extends Controller
         $response = new Response();
         $response->setPublic();
         $response->setETag( "HelloWorldTwigTag" );
-        $response->setLastModified( new DateTime( "2012-01-01 00:00:00+0000" ) );
+//        $response->setLastModified( new DateTime( "2012-01-01 00:00:00+0000" ) );
 
         // Check that the Response is not modified for the given Request
         if ( $response->isNotModified( $this->getRequest() ) )
@@ -81,9 +84,9 @@ class DemoController extends Controller
             // return the 304 Response immediately
             return $response;
         }
-        return $this->render( "eZDemoBundle::hello_world.html.twig", null, $response );
-    }
 
+        return $this->render( "eZDemoBundle::hello_world.html.twig", array(), $response );
+    }
 
     public function editorialAction( $contentId )
     {
@@ -91,6 +94,95 @@ class DemoController extends Controller
             "eZDemoBundle:content:editorial.html.twig",
             array(
                  "content" => $this->getRepository()->getContentService()->loadContent( $contentId )
+            )
+        );
+    }
+
+    /**
+     * Renders the top menu, with cache control
+     *
+     * @param int $locationId
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function topMenuAction( $locationId )
+    {
+        $response = new Response;
+        $response->setMaxAge( 60 );
+        $location = $this->getRepository()->getLocationService()->loadLocation( $locationId );
+
+        return $this->render(
+            "eZDemoBundle::page_topmenu.html.twig",
+            array(
+                "locations" => $this->getRepository()->getLocationService()->loadLocationChildren( $location )
+            ),
+            $response
+        );
+    }
+
+    /**
+     * Renders the latest content for footer, with cache control
+     *
+     * @param string $pathString
+     * @param string $contentTypeIdentifier
+     * @param int $limit
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function latestContentAction( $pathString, $contentTypeIdentifier, $limit )
+    {
+        $response = new Response;
+        $response->setMaxAge( 60 );
+
+        $contentType = $this->getRepository()->getContentTypeService()->loadContentTypeByIdentifier( $contentTypeIdentifier );
+        $query = new Query(
+            array(
+                 'criterion' => new Criterion\LogicalAnd(
+                     array(
+                          new Criterion\Subtree( $pathString ),
+                          new Criterion\ContentTypeId( $contentType->id )
+                     )
+                 ),
+                 'sortClauses' => array(
+                     new SortClause\DatePublished( Query::SORT_DESC )
+                 )
+            )
+        );
+        $query->limit = $limit;
+
+        return $this->render(
+            "eZDemoBundle:footer:latest_content.html.twig",
+            array(
+                "latestContent" => $this->getRepository()->getSearchService()->findContent( $query )
+            ),
+            $response
+        );
+    }
+
+    public function footerAction( $contentTypeIdentifier )
+    {
+        $contentType = $this->getRepository()->getContentTypeService()->loadContentTypeByIdentifier( $contentTypeIdentifier );
+
+        $query = new Query(
+            array(
+                 'criterion' => new Criterion\LogicalAnd(
+                     array(
+                          new Criterion\Subtree( '/1/2/' ),
+                          new Criterion\ContentTypeId( $contentType->id )
+                     )
+                 ),
+                 'sortClauses' => array(
+                     new SortClause\DatePublished( Query::SORT_DESC )
+                 )
+            )
+        );
+        $query->limit = 1;
+
+        $searchResult = $this->getRepository()->getSearchService()->findContent( $query );
+        $content = isset( $searchResult->searchHits[0] ) ? $searchResult->searchHits[0]->valueObject  : null;
+
+        return $this->render(
+            "eZDemoBundle::page_footer.html.twig",
+            array(
+                "content" => $content
             )
         );
     }

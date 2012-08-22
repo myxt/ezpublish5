@@ -1,14 +1,35 @@
 # Installation instructions
 
+> **Side note for Linux users**: Please avoid doing this installation as `root`, since your web server probably runs with another user 
+(`www-data` on Debian/Ubuntu, `apache` on Redhat/CentOS/Fedora).
+> 
+> If you still want to do this as `root`, then ensure that your webserver has at least write access in the `app/` directory.
+
 ## eZ Publish 4 (aka *legacy*) part
-1. Start from an [eZ Publish CP 2012.5](http://share.ez.no/downloads/downloads/ez-publish-community-project-2012.5) installation
+1. Start from an [eZ Publish CP 2012.5](http://share.ez.no/downloads/downloads/ez-publish-community-project-2012.5) or [higher](http://share.ez.no/downloads/downloads) installation.
 
 2. Upgrade it to the enhanced version 
-   (get the source from eZ Publish legacy's [**ezpublish5-integration** branch](https://github.com/ezsystems/ezpublish/tree/ezpublish5-integration), 
-   or just [download the ZIP file](https://github.com/ezsystems/ezpublish/zipball/ezpublish5-integration)). 
-   No upgrade script is needed, only replace all source files (except your own extensions, templates and settings).
+   (get the source from eZ Publish legacy's [**master** branch](https://github.com/ezsystems/ezpublish/tree/master), 
+   or just [download the ZIP file](https://github.com/ezsystems/ezpublish/zipball/master)). 
 
    > **Very important**: Be sure you have upgraded your **index.php** as well
+
+
+### Troubleshooting
+You might get the following error:
+> Retrieving remote site packages list failed. You may upload packages manually.
+>
+> Remote repository URL: http://packages.ez.no/ezpublish/5.0/5.0.0alpha1/
+
+This is most likely because you didn't start from an eZ Publish CP package, but directly from GitHub sources,
+or because you launched installation wizard *after* having upgraded to `ezpublish5-integration` branch.
+
+To fix it, tweak your `settings/package.ini` by overriding it:
+
+```ini
+[RepositorySettings]
+RemotePackagesIndexURL=http://packages.ez.no/ezpublish/4.7/4.7.0
+```
 
 ## eZ Publish 5 part
 1. Clone the repository
@@ -16,33 +37,33 @@
        ```bash
        git clone git@github.com:ezsystems/ezpublish5.git
        ```
-2. Install the dependencies with [Composer](http://getcomposer.org) (`composer.phar` is already provided):
-
-       ```bash
-       cd /path/to/ezpublish5/
-       php composer.phar install
-       ```
        
-       > **Note**: If you end to a *process timed out* error, this might be caused by a *not-that-fast* internet connection :-).
-       > Try then to set `COMPOSER_PROCESS_TIMEOUT` environment variable to 3000 before relaunching the composer install command.
-       
-       ```bash
-       COMPOSER_PROCESS_TIMEOUT=3000 php composer.phar install
-       ```
-3. Initialize and update git submodules (like public API):
-
-       ```bash
-       git submodule init
-       git submodule update
-       ```
-4. Move (or symlink) your eZ Publish legacy root to `app/ezpublish_legacy`
+2. Move (or symlink) your eZ Publish legacy root to `app/ezpublish_legacy`
 
        ```bash
        ln -s /path/to/ezpublish/legacy /path/to/ezpublish5/app/ezpublish_legacy
        ```
 
-5. Configure by editing `app/config/config.yml`:
-    * `ezpublish.api.storage_engine.legacy.dsn`: DSN to your database connection (only MySQL and PostgreSQL are supported at the moment)
+3. Install the dependencies with [Composer](http://getcomposer.org).
+
+       If you don't have Composer yet, download it following the instructions on http://getcomposer.org/ or just run the following command:
+       ```bash
+       cd /path/to/ezpublish5/
+       curl -s http://getcomposer.org/installer | php
+       ```
+
+       Afer installing composer, install of all the project's dependencies by running:
+       ```bash
+       cd /path/to/ezpublish5/
+       php composer.phar install
+       ```
+
+5. Configure:
+    * Copy `app/config/parameters.yml.dist` to `app/config/parameters.yml`
+    * Edit `app/config/parameters.yml` and configure
+
+         * `ezpublish.api.storage_engine.legacy.dsn`: DSN to your database connection (only MySQL and PostgreSQL are supported at the moment)
+         * `ezpublish.siteaccess.default`: Should be a **valid siteaccess** (preferably the same than `[SiteSettings].DefaultAccess` set in your `settings/override/site.ini.append.php`
 
 6. Dump your assets in your webroot:
 

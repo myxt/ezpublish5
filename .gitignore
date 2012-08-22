@@ -1,15 +1,10 @@
-/vendor/symfony/
-/vendor/composer/
-/vendor/twig/
-/vendor/.composer/
-/vendor/autoload.php
-/vendor/doctrine
-/vendor/zetacomponents
+/vendor/
 .php~
 /nbproject/
 /.idea/
 /app/cache/
 /app/ezpublish_legacy
+/app/config/parameters.yml
 /web/index_treemenu.php
 /web/index_rest.php
 /web/index_cluster.php
@@ -18,3 +13,5 @@
 /web/extension
 /web/share
 /web/var
+composer.phar
+composer.lock

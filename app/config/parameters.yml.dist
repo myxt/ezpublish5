@@ -1,0 +1,26 @@
+parameters:
+    # Using legacy storage engine for data compatibility with 4.x
+    ezpublish.api.storage_engine.default: legacy
+    # Customize here your database connection
+    # This is a DSN. Format is <dbType>://<user>:<password>@<host>/<dbName>
+    ezpublish.api.storage_engine.legacy.dsn: mysql://root:root@localhost/ezdemo
+
+    # Siteaccess matching, this is dummy configuration for tests
+    ezpublish.siteaccess.default: ezdemo_site
+    ezpublish.siteaccess.match_config:
+        Map\URI:
+            ezdemo_site: ezdemo_site
+            ezdemo_site_admin: ezdemo_site_admin
+        Map\Host:
+            ezpublish.dev: ezdemo_site
+            admin.ezpublish.dev: ezdemo_site_admin
+
+    # Bypass UrlAliasRouter to use the admin interface since everything needs to run via the legacy kernel
+    ezpublish.siteaccess.config.ezdemo_site_admin:
+        useUrlAliasRouter: false
+
+    # Uncomment the following line to deactivate view cache
+    #ezpublish.controller.content.view.options: {viewCache: false}
+
+    ezpublish_legacy.view.default_layout: eZDemoBundle::pagelayout.html.twig
+    ezpublish_legacy.view.content_block_name: content
